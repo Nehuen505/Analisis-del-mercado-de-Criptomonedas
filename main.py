@@ -4,7 +4,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from datetime import timedelta
 import numpy as np
-#
+
 def leer_csv(nombre):
     df = pd.read_csv(f'datos_csv/{nombre}_coin.csv')
     return df
