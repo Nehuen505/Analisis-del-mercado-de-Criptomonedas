@@ -19,7 +19,7 @@ usd_coin = leer_csv('usd-coin')
 dai = leer_csv('dai')
 polygon = leer_csv('matic-network')
 grove = leer_csv('grove')
-dogecola = leer_csv('dogecola')
+dogecola = leer_csv('dogecola')#asdasd
 wall_street_baby = leer_csv('wall-street-baby')
 cryn = leer_csv('cryn')
 
