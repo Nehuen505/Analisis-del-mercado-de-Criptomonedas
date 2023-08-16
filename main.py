@@ -22,6 +22,14 @@ grove = leer_csv('grove')
 dogecola = leer_csv('dogecola')#asdasd
 wall_street_baby = leer_csv('wall-street-baby')
 cryn = leer_csv('cryn')
+taraxa = leer_csv('taraxa')
+taraxa['date'] = pd.to_datetime(taraxa['date'])
+taraxa['date'] = taraxa['date'].dt.date
+taraxa = taraxa.drop_duplicates(subset=['date'])
+dust_protocol = leer_csv('dust-protocol')
+dust_protocol['date'] = pd.to_datetime(taraxa['date'])
+dust_protocol['date'] = dust_protocol['date'].dt.date
+dust_protocol = dust_protocol.drop_duplicates(subset=['date'])
 
 
 bitcoin['date'] = pd.to_datetime(bitcoin['date'], format='%Y-%m-%d')
@@ -36,6 +44,8 @@ grove['date'] = pd.to_datetime(grove['date'], format='%Y-%m-%d')
 dogecola['date'] = pd.to_datetime(dogecola['date'], format='%Y-%m-%d')
 wall_street_baby['date'] = pd.to_datetime(wall_street_baby['date'], format='%Y-%m-%d')
 cryn['date'] = pd.to_datetime(cryn['date'], format='%Y-%m-%d')
+taraxa['date'] = pd.to_datetime(taraxa['date'], format='%Y-%m-%d')
+dust_protocol['date'] = pd.to_datetime(dust_protocol['date'], format='%Y-%m-%d')
 
 st.title('Visualización de Criptomonedas')
 
@@ -148,19 +158,19 @@ if estables:
     
     
 # -----Mejores y peores
-mejores_peores = st.button('Mejores y peores del último año')
+mejores_peores = st.button('Mejor y peor de los últimos 15 días')
 if mejores_peores:
-    st.write('Estas son las criptomonedas que experimentaron los mayores o menores cambios porcentuales durante el último año. Esto resalta la oportunidad de obtener ganancias significativas al comprar y vender en momentos estratégicos. Sin embargo, también subraya el riesgo de perder toda tu inversión si no logras identificar el momento adecuado para salir de una criptomoneda.')
+    st.write('Las criptomonedas que experimentaron los mayores o menores cambios porcentuales en el último período resaltan la oportunidad de obtener ganancias significativas al comprar y vender en momentos estratégicos. Sin embargo, también subrayan el riesgo de perder toda tu inversión si no logras identificar el momento adecuado para salir de una criptomoneda.')
     # -----Grafico de lineas mejores
-    criptomonedas_mejores = [grove, dogecola]
-    nombres_criptomonedas_mejores = ['GroveCoin', 'DOGECOLA']
+    criptomonedas_mejores = [taraxa]
+    nombres_criptomonedas_mejores = ['Taraxa']
     
     fig_line = go.Figure()
 
     for i, cripto in enumerate(criptomonedas_mejores):
         fig_line.add_trace(go.Scatter(x=cripto['date'], y=cripto['price'], mode='lines', name=nombres_criptomonedas_mejores[i]))
 
-    fig_line.update_layout(xaxis_title='Fecha', yaxis_title='Precio', title='Mejores del último año')
+    fig_line.update_layout(xaxis_title='Fecha', yaxis_title='Precio', title='Mejor de los últimos 15 días')
     fig_line.update_layout(legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1))
     
     st.plotly_chart(fig_line)
@@ -180,46 +190,41 @@ if mejores_peores:
             investment_gain = final_price - initial_investment
             st.write(f"Para {nombres_criptomonedas_mejores[i]}:")
             st.write(f'Inversión inicial: ${initial_investment}')
-            st.write(f"Valor máximo: ${max_price:.6f}")
-            st.write(f"Valor mínimo: ${min_price:.10f}")
-            st.write(f"Diferencia porcentual: {price_difference_percent:.2f}%")
             st.write(f"Cambio en inversión por diferencia porcentual: ${investment_change:.2f}")
         else:
             st.write(f"No hay datos de precios disponibles para {nombres_criptomonedas_mejores[i]}")
             
             
     #-----Grafico de lineas comparativo entre las peores monedas del año
-    criptomonedas_peores = [wall_street_baby, cryn]
-    nombres_criptomonedas_peores = ['Wall Street Baby', 'CRYN']
+    # -----Grafico de lineas peores
+    criptomonedas_peores = [dust_protocol]
+    nombres_criptomonedas_peores = ['Dust Protocol']
 
     fig_line = go.Figure()
 
     for i, cripto in enumerate(criptomonedas_peores):
         fig_line.add_trace(go.Scatter(x=cripto['date'], y=cripto['price'], mode='lines', name=nombres_criptomonedas_peores[i]))
 
-    fig_line.update_layout(xaxis_title='Fecha', yaxis_title='Precio', title='Peores del último año')
+    fig_line.update_layout(xaxis_title='Fecha', yaxis_title='Precio', title='Peor de los últimos 15 días')
     fig_line.update_layout(legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1))
 
     st.plotly_chart(fig_line)
 
-    #-----Análisis de las peores monedas
+    # -----Análisis de las peores monedas
     initial_investment = 1000
 
     for i, cripto in enumerate(criptomonedas_peores):
-        max_price = max(cripto['price'])
-        min_price = min(cripto['price'])
-
-        price_difference_percent = ((min_price - max_price) / max_price) * 100
-        investment_change = (price_difference_percent / 100) * initial_investment
-
-        if len(cripto['price']) > 0:
-            final_price = cripto['price'].iloc[-1]
-            investment_gain = final_price - initial_investment
+        price_values = cripto['price']
+        
+        if len(price_values) > 0:
+            initial_price = price_values.iloc[0]
+            final_price = price_values.iloc[-1]
+            
+            price_difference_percent = ((final_price - initial_price) / initial_price) * 100
+            investment_change = (price_difference_percent / 100) * initial_investment
+            
             st.write(f"Para {nombres_criptomonedas_peores[i]}:")
             st.write(f'Inversión inicial: ${initial_investment}')
-            st.write(f"Valor máximo: ${max_price:.10f}")
-            st.write(f"Valor mínimo: ${min_price:.10f}")
-            st.write(f"Diferencia porcentual: {price_difference_percent:.2f}%")
             st.write(f"Cambio en inversión por diferencia porcentual: ${investment_change:.2f}")
         else:
-            st.write(f"No hay datos de precios disponibles para {nombres_criptomonedas_mejores[i]}")
+            st.write(f"No hay datos de precios disponibles para {nombres_criptomonedas_peores[i]}")
